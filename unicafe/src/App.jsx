@@ -6,8 +6,22 @@ const Button = ({ handleClick, text }) => {
 const H1 = ({ text }) => {
   return <h1>{text}</h1>;
 };
-const P = ({ text, num }) => {
-  return <p>{text} {num}</p>;
+const Statistics = ({ good, neutral, bad }) => {
+  const all = good + neutral + bad;
+  return all !== 0 ? (
+    <>
+      <StatisticLine text='good' value={good} />
+      <StatisticLine text='neutral' value={neutral} />
+      <StatisticLine text='bad' value={bad} />
+      <StatisticLine text='all' value={all} />
+      <StatisticLine text='average' value={(good - bad) / all || 0} />
+      <StatisticLine text='positive' value={((100 * good) / all || 0) + ' %'} />
+    </>
+  )
+  : <p>No feedback given</p>
+};
+const StatisticLine = ({ text, value }) => {
+  return <p>{text} {value}</p>;
 };
 const App = () => {
   // save clicks of each button to its own state
@@ -18,22 +32,6 @@ const App = () => {
   const giveGood = () => setGood(good + 1);
   const giveNeutral = () => setNeutral(neutral + 1);
   const giveBad = () => setBad(bad + 1);
-
-  const Statistics = (props) => {
-    const { good, neutral, bad } = props;
-    const all = good + neutral + bad;
-    return all !== 0 ? (
-      <>
-        <P text='good' num={good} />
-        <P text='neutral' num={neutral} />
-        <P text='bad' num={bad} />
-        <P text='all' num={all} />
-        <P text='average' num={(good - bad) / all || 0} />
-        <P text='positive' num={((100 * good) / all || 0) + ' %'} />
-      </>
-    )
-    : <p>No feedback given</p>
-  };
 
   return (
     <>
