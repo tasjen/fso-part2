@@ -14,15 +14,19 @@ const App = () => {
   const [good, setGood] = useState(0);
   const [neutral, setNeutral] = useState(0);
   const [bad, setBad] = useState(0);
+  const [all, setAll] = useState(0);
 
   const giveGood = () => {
     setGood(good + 1)
+    setAll(all + 1)
   }
   const giveNeutral = () => {
     setNeutral(neutral + 1)
+    setAll(all + 1)
   }
   const giveBad = () => {
     setBad(bad + 1)
+    setAll(all + 1)
   }
 
   return (
@@ -35,6 +39,9 @@ const App = () => {
       <P text='good' num={good}/>
       <P text='neutral' num={neutral}/>
       <P text='bad' num={bad}/>
+      <P text='all' num={all}/>
+      <P text='average' num={(good-bad)/all || 0}/>
+      <P text='positive' num={(100*good/all || 0) + ' %'}/>
     </>
   );
 };
