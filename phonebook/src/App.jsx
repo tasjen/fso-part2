@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import personService from './services/persons.js'
 const Filter = ({ handleFilter }) => {
   return (
@@ -52,8 +51,9 @@ const App = () => {
 
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons")
-      .then(response => setPersons(response.data))
+    personService
+      .getAll()
+      .then(returnedPersons => setPersons(returnedPersons))
   }, [])
   const addPerson = (event) => {
     event.preventDefault();
