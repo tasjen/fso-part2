@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import personService from './services/persons.js'
+import personService from './services/persons.js';
 const Filter = ({ handleFilter }) => {
   return (
     <div>
@@ -28,19 +28,20 @@ const PersonForm = ({
     </form>
   );
 };
-const Persons = ({ persons, keyword }) => {
+const Persons = ({ persons, keyword, handleDelete }) => {
   return (
-    <>
+    <ul>
       {persons
         .filter((person) =>
           person.name.toLowerCase().includes(keyword.toLowerCase())
         )
         .map((person) => (
-          <p key={person.name}>
+          <li key={person.name}>
             {person.name} {person.number}
-          </p>
+            <button onClick={() => handleDelete(person.id)}>delete</button>
+          </li>
         ))}
-    </>
+    </ul>
   );
 };
 const App = () => {
@@ -49,12 +50,11 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
 
-
   useEffect(() => {
     personService
       .getAll()
-      .then(returnedPersons => setPersons(returnedPersons))
-  }, [])
+      .then((returnedPersons) => setPersons(returnedPersons));
+  }, []);
   const addPerson = (event) => {
     event.preventDefault();
     if (persons.map((person) => person.name).includes(newName)) {
@@ -62,10 +62,10 @@ const App = () => {
     }
 
     const newPerson = { name: newName, number: newNumber };
-    
+
     personService
       .create(newPerson)
-      .then(returnedPerson => setPersons(persons.concat(returnedPerson)))
+      .then((returnedPerson) => setPersons(persons.concat(returnedPerson)));
     setNewName('');
     setNewNumber('');
   };
@@ -77,6 +77,13 @@ const App = () => {
   };
   const handleNewNumber = (event) => {
     setNewNumber(event.target.value);
+  };
+  const handleDelete = (id) => {
+    if (confirm(`Delete ${persons.find((e) => e.id === id).name}`)) {
+      personService
+        .del(id)
+        .then(() => setPersons(persons.filter((e) => e.id !== id)));
+    }
   };
 
   return (
@@ -92,7 +99,11 @@ const App = () => {
         addPerson={addPerson}
       />
       <h3>Numbers</h3>
-      <Persons persons={persons} keyword={keyword} />
+      <Persons
+        persons={persons}
+        keyword={keyword}
+        handleDelete={handleDelete}
+      />
     </div>
   );
 };
