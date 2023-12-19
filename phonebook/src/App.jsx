@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import personService from './services/persons.js'
 const Filter = ({ handleFilter }) => {
   return (
     <div>
@@ -59,7 +60,12 @@ const App = () => {
     if (persons.map((person) => person.name).includes(newName)) {
       return alert(`${newName} is already added to phonebook`);
     }
-    setPersons(persons.concat({ name: newName, number: newNumber }));
+
+    const newPerson = { name: newName, number: newNumber };
+    
+    personService
+      .create(newPerson)
+      .then(returnedPerson => setPersons(persons.concat(returnedPerson)))
     setNewName('');
     setNewNumber('');
   };
