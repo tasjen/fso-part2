@@ -57,17 +57,28 @@ const App = () => {
   }, []);
   const addPerson = (event) => {
     event.preventDefault();
-    if (persons.map((person) => person.name).includes(newName)) {
-      return alert(`${newName} is already added to phonebook`);
+    const alrAdded = persons.find((e) => e.name === newName);
+
+    if (alrAdded) {
+      if (
+        confirm(`${newName} is already added to phonebook
+      , replace the old number with a new one?`)
+      ) {
+        personService
+          .update(alrAdded.id, { ...alrAdded, number: newNumber })
+          .then((returnedPerson) =>
+            setPersons(
+              persons.map((e) => (e.id !== alrAdded.id ? e : returnedPerson))
+            )
+          );
+      }
+    } else {
+      personService
+        .create({ name: newName, number: newNumber })
+        .then((returnedPerson) => setPersons([...persons, returnedPerson]));
+      setNewName('');
+      setNewNumber('');
     }
-
-    const newPerson = { name: newName, number: newNumber };
-
-    personService
-      .create(newPerson)
-      .then((returnedPerson) => setPersons(persons.concat(returnedPerson)));
-    setNewName('');
-    setNewNumber('');
   };
   const handleFilter = (event) => {
     setKeyword(event.target.value);
