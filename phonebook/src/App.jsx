@@ -1,60 +1,23 @@
 import { useState, useEffect } from 'react';
 import personService from './services/persons.js';
-const Filter = ({ handleFilter }) => {
-  return (
-    <div>
-      filter shown with: <input onChange={handleFilter} />
-    </div>
-  );
-};
-const PersonForm = ({
-  newName,
-  newNumber,
-  handleNewName,
-  handleNewNumber,
-  addPerson,
-}) => {
-  return (
-    <form onSubmit={addPerson}>
-      <div>
-        name: <input value={newName} onChange={handleNewName} />
-      </div>
-      <div>
-        number: <input value={newNumber} onChange={handleNewNumber} />
-      </div>
-      <div>
-        <button type='submit'>add</button>
-      </div>
-    </form>
-  );
-};
-const Persons = ({ persons, keyword, handleDelete }) => {
-  return (
-    <ul>
-      {persons
-        .filter((person) =>
-          person.name.toLowerCase().includes(keyword.toLowerCase())
-        )
-        .map((person) => (
-          <li key={person.name}>
-            {person.name} {person.number}
-            <button onClick={() => handleDelete(person.id)}>delete</button>
-          </li>
-        ))}
-    </ul>
-  );
-};
+import Filter from './components/Filter.jsx';
+import PersonForm from './components/PersonForm.jsx';
+import Persons from './components/Persons.jsx';
+import Notification from './components/Notification.jsx';
+
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [keyword, setKeyword] = useState('');
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
+  const [notiMessage, setNotiMessage] = useState({ text: null, type: '' });
 
   useEffect(() => {
     personService
       .getAll()
       .then((returnedPersons) => setPersons(returnedPersons));
   }, []);
+
   const addPerson = (event) => {
     event.preventDefault();
     const alrAdded = persons.find((e) => e.name === newName);
@@ -66,20 +29,38 @@ const App = () => {
       ) {
         personService
           .update(alrAdded.id, { ...alrAdded, number: newNumber })
-          .then((returnedPerson) =>
+          .then((returnedPerson) => {
             setPersons(
               persons.map((e) => (e.id !== alrAdded.id ? e : returnedPerson))
-            )
-          );
+            );
+            setNotiMessage({
+              text: `Added ${returnedPerson.name}`,
+              type: '',
+            });
+            setTimeout(() => setNotiMessage({ text: null, type: '' }), 5000);
+          })
+          .catch(() => {
+            setNotiMessage({
+              text: `Information of ${alrAdded.name} has already been removed from server`,
+              type: 'error',
+            });
+            setTimeout(() => setNotiMessage({ text: null, type: '' }), 5000);
+            setPersons(persons.filter((p) => p.id !== alrAdded.id));
+          });
       }
     } else {
       personService
         .create({ name: newName, number: newNumber })
-        .then((returnedPerson) => setPersons([...persons, returnedPerson]));
+        .then((returnedPerson) => {
+          setPersons([...persons, returnedPerson]);
+          setNotiMessage({ text: `Added ${returnedPerson.name}`, type: '' });
+          setTimeout(() => setNotiMessage({ text: null, type: '' }), 5000);
+        });
       setNewName('');
       setNewNumber('');
     }
   };
+
   const handleFilter = (event) => {
     setKeyword(event.target.value);
   };
@@ -93,13 +74,15 @@ const App = () => {
     if (confirm(`Delete ${persons.find((e) => e.id === id).name}`)) {
       personService
         .del(id)
-        .then(() => setPersons(persons.filter((e) => e.id !== id)));
+        .then(() => setPersons(persons.filter((e) => e.id !== id)))
+        .catch(() => setPersons(persons.filter((e) => e.id !== id)));
     }
   };
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notiMessage={notiMessage} />
       <Filter handleFilter={handleFilter} />
       <h3>Add a new</h3>
       <PersonForm
