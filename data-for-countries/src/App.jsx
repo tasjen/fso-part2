@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Countries from './components/Countries.jsx';
 import Country from './components/Country.jsx';
+const api_key = import.meta.env.VITE_SOME_KEY;
 
 function App() {
   const [value, setValue] = useState('');
@@ -26,11 +27,8 @@ function App() {
   }, [searchResult]);
 
   const handleChange = (event) => {
-    if (!countries) {
-      setSearchResult([]);
-      return;
-    }
     setValue(event.target.value);
+    if (!countries) return;
     setSearchResult(
       countries.filter((e) =>
         e.name.common.toLowerCase().includes(event.target.value.toLowerCase())
@@ -42,7 +40,7 @@ function App() {
     setShowingCountry(country);
     axios
       .get(
-        `http://api.weatherapi.com/v1/current.json?key=e9e1442cd9e446ff9c4175455230612&q=${country.capital[0]}`
+        `http://api.weatherapi.com/v1/current.json?key=${api_key}&q=${country.capital[0]}`
       )
       .then((response) => setCapitalWeather(response.data));
   };
