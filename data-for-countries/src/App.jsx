@@ -5,6 +5,7 @@ import Countries from './components/Countries.jsx';
 function App() {
   const [value, setValue] = useState('');
   const [countries, setCountries] = useState(null);
+  const [showingCountry, setShowingCountry] = useState(null);
 
   useEffect(() => {
     axios
@@ -14,14 +15,23 @@ function App() {
 
   const handleChange = (event) => {
     setValue(event.target.value);
+    setShowingCountry(null);
   };
-  
+  const handleShow = (country) => {
+    setShowingCountry(country);
+  };
+
   return (
     <>
       <div>
         find countries <input value={value} onChange={handleChange} />
       </div>
-      <Countries filter={value} countries={countries} />
+      <Countries
+        filter={value}
+        countries={countries}
+        showingCountry={showingCountry}
+        handleShow={handleShow}
+      />
     </>
   );
 }
